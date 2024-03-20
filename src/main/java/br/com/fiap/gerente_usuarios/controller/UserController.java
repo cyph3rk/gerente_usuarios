@@ -38,6 +38,7 @@ public class UserController {
 
     @GetMapping("/filter/{login}")
     public UserDetails getJwtRequestFilter(@PathVariable String login) {
+        logger.info("GET - getJwtRequestFilter");
         UserDetails user = userRepository.findByLogin(login);
         return user;
     }
