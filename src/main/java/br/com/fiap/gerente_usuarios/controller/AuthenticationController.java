@@ -20,17 +20,19 @@ import jakarta.validation.Valid;
 @RequestMapping("/auth")
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final IUsuarioRepositorio repository;
+    private final TokenService tokenService;
 
     @Autowired
-    private IUsuarioRepositorio repository;
-
-    @Autowired
-    private TokenService tokenService;
+    public AuthenticationController(AuthenticationManager authenticationManager, IUsuarioRepositorio repository, TokenService tokenService) {
+        this.authenticationManager = authenticationManager;
+        this.repository = repository;
+        this.tokenService = tokenService;
+    }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid UserAuthRequest data){
+    public ResponseEntity<Object> login(@RequestBody @Valid UserAuthRequest data){
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
@@ -41,7 +43,7 @@ public class AuthenticationController {
 
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid UserRequest data){
+    public ResponseEntity<Object> register(@RequestBody @Valid UserRequest data){
         if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());

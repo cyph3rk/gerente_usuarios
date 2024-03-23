@@ -18,16 +18,19 @@ import java.util.List;
 @RequestMapping("users")
 public class UserController {
 
-    @Autowired
-    private IUsuarioRepositorio repository;
+    private final IUsuarioRepositorio repository;
+    private final IUsuarioRepositorio userRepository;
 
     @Autowired
-    IUsuarioRepositorio userRepository;
+    public UserController(IUsuarioRepositorio repository, IUsuarioRepositorio userRepository) {
+        this.repository = repository;
+        this.userRepository = userRepository;
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
      @GetMapping
-    public ResponseEntity getAllUsers(){
+    public ResponseEntity<Object> getAllUsers(){
 
          logger.info("GET - ResponseEntity getAllUsers");
 
@@ -39,8 +42,7 @@ public class UserController {
     @GetMapping("/filter/{login}")
     public UserDetails getJwtRequestFilter(@PathVariable String login) {
         logger.info("GET - getJwtRequestFilter");
-        UserDetails user = userRepository.findByLogin(login);
-        return user;
+        return userRepository.findByLogin(login);
     }
 
 }
