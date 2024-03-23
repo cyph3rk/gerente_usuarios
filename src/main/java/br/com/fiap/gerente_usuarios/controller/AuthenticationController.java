@@ -39,6 +39,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(new UserResponse(token));
     }
 
+
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid UserRequest data){
         if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
