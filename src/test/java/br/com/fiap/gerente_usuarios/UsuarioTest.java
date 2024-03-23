@@ -24,15 +24,13 @@ class UsuarioTest {
     @LocalServerPort
     private int port;
 
-    private String token;
-
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Test
-    public void teste_Cadastrando_Usuario_Sucesso() throws JsonProcessingException {
+    void teste_Cadastrando_Usuario_Sucesso() throws JsonProcessingException {
 
-        String randomWord = geraPalavraRandomica(8);
+        String randomWord = geraPalavraRandomica();
         String url = "http://localhost:" + port + "/auth/register";
 
         Usuario usuario = new Usuario(randomWord, "1234", UserRole.ADMIN);
@@ -49,9 +47,9 @@ class UsuarioTest {
     }
 
     @Test
-    public void teste_Login_Usuario_Sucesso() throws JsonProcessingException {
+    void teste_Login_Usuario_Sucesso() throws JsonProcessingException {
 
-        String randomWord = geraPalavraRandomica(8);
+        String randomWord = geraPalavraRandomica();
         String url = "http://localhost:" + port + "/auth/register";
 
         Usuario usuario = new Usuario(randomWord, "1234", UserRole.ADMIN);
@@ -90,7 +88,46 @@ class UsuarioTest {
         }
     }
 
-    private static String geraPalavraRandomica(int length) {
+    @Test
+    void usuario_existe_Sucesso_Test() throws JsonProcessingException {
+
+        String randomWord = geraPalavraRandomica();
+        String url = "http://localhost:" + port + "/auth/register";
+
+        Usuario usuario = new Usuario(randomWord, "1234", UserRole.ADMIN);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(usuario);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        url = "http://localhost:" + port + "/users/" + randomWord;
+        requestEntity = new HttpEntity<>(headers);
+        response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    }
+
+    @Test
+    void usuario_existe_Falha_Test() {
+
+        String url = "http://localhost:" + port + "/users/naoexiste";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+
+        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+    }
+
+    private static String geraPalavraRandomica() {
+        int length = 8;
         String allowedChars = "abcdefghijklmnopqrstuvwxyz";
         Random random = new Random();
         StringBuilder word = new StringBuilder();
