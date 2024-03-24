@@ -43,12 +43,12 @@ public class UserController {
     @GetMapping("/{login}")
     public ResponseEntity<Object> buscaUsuarioPorLogin(@PathVariable String login) {
 
-        UserDetails usuario = userRepository.findByLogin(login);
+        Usuario usuario = userRepository.findByLogin(login);
         if (usuario == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).body(usuario.getId());
     }
 
     @GetMapping("/filter/{login}")
